@@ -1,4 +1,5 @@
 import {
+  Button,
   Paper,
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import { fetchPegawaiTable } from "actions";
 import Navbar from "component/Navbar";
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 
 function PegawaiTable(props) {
   const { rows, loading, dispatch } = props;
@@ -20,7 +22,7 @@ function PegawaiTable(props) {
   useEffect(() => {
     if (rows ? rows.length === 0 : true) {
       dispatch(fetchPegawaiTable());
-    }
+    } // eslint-disable-next-line
   }, []);
 
   if (loading || rows.length === 0 || !rows) {
@@ -33,8 +35,10 @@ function PegawaiTable(props) {
 
   return (
     <>
-      <Navbar />
       <Container maxWidth="xl">
+        <Link style={{ textDecoration: "none" }} to="/add">
+          <Button variant="outlined">Tambah Siswa</Button>
+        </Link>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} arial-label="pegawai table">
             <TableHead>
