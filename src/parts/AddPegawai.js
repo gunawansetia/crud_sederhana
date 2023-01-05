@@ -1,4 +1,5 @@
 import {
+  Alert,
   Autocomplete,
   Button,
   Grid,
@@ -7,23 +8,29 @@ import {
   Typography,
 } from "@mui/material";
 import { Container } from "@mui/system";
+import {
+  addSiswa,
+  deleteListKab,
+  deleteListKec,
+  deleteListKel,
+  fetchKabupatenList,
+  fetchKecamatanList,
+  fetchKelurahanList,
+  fetchProvinsiList,
+} from "actions";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { connect } from "react-redux";
 
-export default function AddPegawai() {
+function AddPegawai(props) {
+  const { dispatch, provList, kabList, kecList, kelList } = props;
+
   const defaultValues = {
     name: "",
     province: "",
     kab: "",
     kec: "",
     kel: "",
-  };
-
-  const defaultOption = {
-    provinsiList: [],
-    kabList: [],
-    kecList: [],
-    kelList: [],
   };
 
   const defaultId = {
@@ -38,16 +45,20 @@ export default function AddPegawai() {
     kel: true,
   };
 
-  const [option, setOption] = useState(defaultOption);
-  const [isDisabled, setIsDisabled] = useState(initDisabled);
+  const alertStatus = {
+    isOpen: false,
+    success: true,
+    text: "",
+  };
 
+  const [isDisabled, setIsDisabled] = useState(initDisabled);
   const [values, setValues] = useState(defaultValues);
   const [id, setId] = useState(defaultId);
-
-  const endPoint = "http://dev.farizdotid.com/api/daerahindonesia/provinsi";
+  const [open, setOpen] = useState(alertStatus);
 
   const areAllFilled =
     values.name !== "" &&
+    !/^\s+$/.test(values.name) &&
     values.province !== "" &&
     values.kab !== "" &&
     values.kec !== "" &&
@@ -61,11 +72,7 @@ export default function AddPegawai() {
         [name]: value,
       });
     if (name === "kab") {
-      setOption({
-        ...option,
-        kelList: [],
-        kecList: [],
-      });
+      dispatch(deleteListKec(), deleteListKel());
       setValues({
         ...values,
         kec: "",
@@ -76,7 +83,7 @@ export default function AddPegawai() {
       setId({ ...id, kec: "", kel: "", kab: newValue.props.id });
     }
     if (name === "kec") {
-      setOption({ ...option, kelList: [] });
+      dispatch(deleteListKel());
       setIsDisabled({ ...isDisabled, kel: true });
       setValues({ ...values, kel: "", kec: value });
       setId({ ...id, kec: newValue ? newValue.props.id : null });
@@ -87,12 +94,7 @@ export default function AddPegawai() {
   };
 
   const hChangeAutoComplete = (e, value) => {
-    setOption({
-      ...option,
-      kabList: [],
-      kecList: [],
-      kelList: [],
-    });
+    console.log(value);
     setIsDisabled({
       ...isDisabled,
       kab: true,
@@ -106,6 +108,7 @@ export default function AddPegawai() {
       kel: "",
       province: value ? value.nama : "",
     });
+
     setId({
       ...id,
       kab: "",
@@ -113,73 +116,37 @@ export default function AddPegawai() {
       kel: "",
       province: value ? value.id : "",
     });
+    dispatch(deleteListKab(), deleteListKec(), deleteListKel());
   };
 
   useEffect(() => {
-    if (option.provinsiList.length === 0) {
-      axios
-        .get(endPoint)
-        .then((res) => {
-          let result = res.data;
-          console.log(result.provinsi);
-          setOption({
-            ...option,
-            kabList: [],
-            kecList: [],
-            provinsiList: result.provinsi,
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    if (provList.length === 0) {
+      dispatch(fetchProvinsiList());
     }
 
     if (
       id.province !== "" &&
       values.province !== null &&
       values.kab === "" &&
-      option.kabList.length === 0
+      kabList.length === 0
     ) {
-      const endPointKab = `http://dev.farizdotid.com/api/daerahindonesia/kota?id_provinsi=${id.province}`;
-
-      axios
-        .get(endPointKab)
-        .then((res) => {
-          let result = res.data;
-          console.log(result);
-          setOption({
-            ...option,
-            kabList: result.kota_kabupaten,
-          });
-          setIsDisabled({
-            ...isDisabled,
-            kab: false,
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      dispatch(fetchKabupatenList(id.province));
+      setIsDisabled({
+        ...isDisabled,
+        kab: false,
+      });
     }
 
     if (
       id.kab !== "" &&
       values.kab !== null &&
       values.kec === "" &&
-      option.kecList.length === 0
+      kecList.length === 0
     ) {
-      const endPointKec = `https://dev.farizdotid.com/api/daerahindonesia/kecamatan?id_kota=${id.kab}`;
-
-      axios.get(endPointKec).then((res) => {
-        let result = res.data;
-        console.log(result);
-        setOption({
-          ...option,
-          kecList: result.kecamatan,
-        });
-        setIsDisabled({
-          ...isDisabled,
-          kec: false,
-        });
+      dispatch(fetchKecamatanList(id.kab));
+      setIsDisabled({
+        ...isDisabled,
+        kec: false,
       });
     }
 
@@ -187,21 +154,12 @@ export default function AddPegawai() {
       id.kec !== "" &&
       values.kec !== null &&
       values.kel === "" &&
-      option.kelList.length === 0
+      kelList.length === 0
     ) {
-      const endPointKel = `https://dev.farizdotid.com/api/daerahindonesia/kelurahan?id_kecamatan=${id.kec}`;
-
-      axios.get(endPointKel).then((res) => {
-        let result = res.data;
-        console.log(result);
-        setOption({
-          ...option,
-          kelList: result.kelurahan,
-        });
-        setIsDisabled({
-          ...isDisabled,
-          kel: false,
-        });
+      dispatch(fetchKelurahanList(id.kec));
+      setIsDisabled({
+        ...isDisabled,
+        kel: false,
       });
     }
 
@@ -210,17 +168,24 @@ export default function AddPegawai() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (
-      values.name !== "" &&
-      values.kab !== "" &&
-      values.province !== "" &&
-      values.kec !== "" &&
-      values.kel !== ""
-    ) {
-      console.log("Benar", values);
-    } else {
-      console.log("Tidak Lengkap", values);
-    }
+    axios
+      .post("https://dummyjson.com/users/add", {
+        nama: values.name,
+        provinsi: values.province,
+        kabupaten: values.kab,
+        kecamatan: values.kec,
+        kelurahan: values.kel,
+      })
+      .then((res) => ({ status: res.status, body: res.data }))
+      .then((obj) => {
+        dispatch(addSiswa(obj.body));
+        setOpen({ isOpen: true, text: obj.status, success: true });
+        console.log(obj.body);
+      })
+      .catch((err) => {
+        setOpen({ isOpen: true, text: err, success: false });
+        console.log(err);
+      });
   };
 
   return (
@@ -233,6 +198,14 @@ export default function AddPegawai() {
         >
           Tambah Pegawai
         </Typography>
+        <Alert
+          severity={!open.success ? "error" : "success"}
+          sx={{ display: open.isOpen ? "flex" : "none", mb: 3 }}
+        >
+          {`This is a ${!open.success ? "error" : "success"} alert - ${
+            open.text
+          }`}
+        </Alert>
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -258,7 +231,7 @@ export default function AddPegawai() {
                 )}
                 label="Provinsi"
                 onChange={hChangeAutoComplete}
-                options={option.provinsiList}
+                options={provList}
                 getOptionLabel={(option) => option.nama || ""}
               />
             </Grid>
@@ -274,12 +247,12 @@ export default function AddPegawai() {
                 name="kab"
                 value={values.kab || ""}
                 helperText="Please select your kabupaten"
-                variant="standard"
+                variant="outlined"
                 onChange={handleChangeTeks}
               >
-                {option.kabList.length === 0
-                  ? option.kabList
-                  : option.kabList.map((option, index) => (
+                {kabList.length === 0
+                  ? kabList
+                  : kabList.map((option, index) => (
                       <MenuItem key={index} value={option.nama} id={option.id}>
                         {option.nama}
                       </MenuItem>
@@ -301,9 +274,9 @@ export default function AddPegawai() {
                 variant="outlined"
                 onChange={handleChangeTeks}
               >
-                {option.kecList.length === 0
-                  ? option.kecList
-                  : option.kecList.map((option, index) => (
+                {kecList.length === 0
+                  ? kecList
+                  : kecList.map((option, index) => (
                       <MenuItem key={index} value={option.nama} id={option.id}>
                         {option.nama}
                       </MenuItem>
@@ -325,9 +298,9 @@ export default function AddPegawai() {
                 variant="outlined"
                 onChange={handleChangeTeks}
               >
-                {option.kelList.length === 0
-                  ? option.kelList
-                  : option.kelList.map((option, index) => (
+                {kelList.length === 0
+                  ? kelList
+                  : kelList.map((option, index) => (
                       <MenuItem key={index} value={option.nama} id={option.id}>
                         {option.nama}
                       </MenuItem>
@@ -348,3 +321,14 @@ export default function AddPegawai() {
     </>
   );
 }
+
+const mapStateToProps = (state) => {
+  return {
+    provList: state.provinsiList,
+    kabList: state.kabList,
+    kecList: state.kecList,
+    kelList: state.kelList,
+  };
+};
+
+export default connect(mapStateToProps)(AddPegawai);
