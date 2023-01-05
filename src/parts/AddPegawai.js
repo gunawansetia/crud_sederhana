@@ -46,6 +46,75 @@ export default function AddPegawai() {
 
   const endPoint = "http://dev.farizdotid.com/api/daerahindonesia/provinsi";
 
+  const areAllFilled =
+    values.name !== "" &&
+    values.province !== "" &&
+    values.kab !== "" &&
+    values.kec !== "" &&
+    values.kel !== "";
+
+  const handleChangeTeks = (e, newValue) => {
+    const { name, value } = e.target;
+    if (name === "name")
+      setValues({
+        ...values,
+        [name]: value,
+      });
+    if (name === "kab") {
+      setOption({
+        ...option,
+        kelList: [],
+        kecList: [],
+      });
+      setValues({
+        ...values,
+        kec: "",
+        kel: "",
+        kab: value,
+      });
+      setIsDisabled({ ...isDisabled, kec: true, kel: true });
+      setId({ ...id, kec: "", kel: "", kab: newValue.props.id });
+    }
+    if (name === "kec") {
+      setOption({ ...option, kelList: [] });
+      setIsDisabled({ ...isDisabled, kel: true });
+      setValues({ ...values, kel: "", kec: value });
+      setId({ ...id, kec: newValue ? newValue.props.id : null });
+    }
+    if (name === "kel") {
+      setValues({ ...values, kel: value });
+    }
+  };
+
+  const hChangeAutoComplete = (e, value) => {
+    setOption({
+      ...option,
+      kabList: [],
+      kecList: [],
+      kelList: [],
+    });
+    setIsDisabled({
+      ...isDisabled,
+      kab: true,
+      kec: true,
+      kel: true,
+    });
+    setValues({
+      ...values,
+      kab: "",
+      kec: "",
+      kel: "",
+      province: value ? value.nama : "",
+    });
+    setId({
+      ...id,
+      kab: "",
+      kec: "",
+      kel: "",
+      province: value ? value.id : "",
+    });
+  };
+
   useEffect(() => {
     if (option.provinsiList.length === 0) {
       axios
@@ -120,7 +189,6 @@ export default function AddPegawai() {
       values.kel === "" &&
       option.kelList.length === 0
     ) {
-      console.log("Masuk");
       const endPointKel = `https://dev.farizdotid.com/api/daerahindonesia/kelurahan?id_kecamatan=${id.kec}`;
 
       axios.get(endPointKel).then((res) => {
@@ -136,55 +204,23 @@ export default function AddPegawai() {
         });
       });
     }
+
+    // eslint-disable-next-line
   }, [id.province, id.kab, id.kec]);
-
-  // const handleInputChange = (event, newValue) => {
-  //   const { name, value } = event.target;
-  //   setIsDisabled({ ...isDisabled, kab: true });
-  //   console.log(newValue);
-  //   setValues({
-  //     ...values,
-  //     kab: "",
-  //     kec: "",
-  //     [name]: value,
-  //   });
-
-  //   setOption({
-  //     ...option,
-  //     kabList: [],
-  //     kecList: [],
-  //   });
-
-  //   if (newValue ? true : false) {
-  //     console.log(event);
-  //     setIsDisabled({ ...isDisabled, kab: true });
-  //     if (!name) {
-  //       setValues({
-  //         ...values,
-  //         kab: "",
-  //         province: newValue.nama,
-  //       });
-  //       setId({
-  //         ...id,
-  //         province: newValue.id,
-  //       });
-  //     } else {
-  //       setValues({
-  //         ...values,
-  //         kab: "",
-  //         [name]: newValue.nama,
-  //       });
-  //       setId({
-  //         ...id,
-  //         [name]: newValue.id,
-  //       });
-  //     }
-  //   }
-  // };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(values, id);
+    if (
+      values.name !== "" &&
+      values.kab !== "" &&
+      values.province !== "" &&
+      values.kec !== "" &&
+      values.kel !== ""
+    ) {
+      console.log("Benar", values);
+    } else {
+      console.log("Tidak Lengkap", values);
+    }
   };
 
   return (
@@ -200,23 +236,19 @@ export default function AddPegawai() {
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item>
+            <Grid item xs={4}>
               <TextField
                 id="name-input"
                 required
                 label="Nama"
+                fullWidth
                 name="name"
                 variant="standard"
                 value={values.name || ""}
-                onChange={(e, value) => {
-                  setValues({
-                    ...values,
-                    name: e.target.value,
-                  });
-                }}
+                onChange={handleChangeTeks}
               />
             </Grid>
-            <Grid item>
+            <Grid item xs={4}>
               <Autocomplete
                 id="province-input"
                 required
@@ -225,44 +257,16 @@ export default function AddPegawai() {
                   <TextField {...params} name="province" label="Provinsi" />
                 )}
                 label="Provinsi"
-                sx={{ minWidth: 250 }}
-                onChange={(e, value) => {
-                  console.log(value);
-                  setOption({
-                    ...option,
-                    kabList: [],
-                    kecList: [],
-                    kelList: [],
-                  });
-                  setIsDisabled({
-                    ...isDisabled,
-                    kab: true,
-                    kec: true,
-                    kel: true,
-                  });
-                  setValues({
-                    ...values,
-                    kab: "",
-                    kec: "",
-                    kel: "",
-                    province: value ? value.nama : "",
-                  });
-                  setId({
-                    ...id,
-                    kab: "",
-                    kec: "",
-                    kel: "",
-                    province: value ? value.id : "",
-                  });
-                }}
+                onChange={hChangeAutoComplete}
                 options={option.provinsiList}
                 getOptionLabel={(option) => option.nama || ""}
               />
             </Grid>
-            <Grid item>
+            <Grid item xs={4}>
               <TextField
                 id="kab-input"
                 required
+                fullWidth
                 disabled={isDisabled.kab}
                 select
                 label="Kabupaten"
@@ -271,26 +275,7 @@ export default function AddPegawai() {
                 value={values.kab || ""}
                 helperText="Please select your kabupaten"
                 variant="standard"
-                onChange={(e, newValue) => {
-                  setOption({
-                    ...option,
-                    kelList: [],
-                    kecList: [],
-                  });
-                  setValues({
-                    ...values,
-                    kec: "",
-                    kel: "",
-                    kab: e.target.value,
-                  });
-                  setIsDisabled({ ...isDisabled, kec: true, kel: true });
-                  setId({
-                    ...id,
-                    kec: "",
-                    kel: "",
-                    kab: newValue.props.id,
-                  });
-                }}
+                onChange={handleChangeTeks}
               >
                 {option.kabList.length === 0
                   ? option.kabList
@@ -301,35 +286,20 @@ export default function AddPegawai() {
                     ))}
               </TextField>
             </Grid>
-            <Grid item>
+            <Grid item xs={4}>
               <TextField
                 id="kec-input"
                 required
                 disabled={isDisabled.kec}
                 select
+                fullWidth
                 label="Kecamatan"
                 defaultValue=""
                 name="kec"
                 value={values.kec || ""}
                 helperText="Please select your kecamatan"
-                variant="standard"
-                onChange={(e, newValue) => {
-                  console.log(newValue);
-                  setOption({
-                    ...option,
-                    kelList: [],
-                  });
-                  setIsDisabled({ ...isDisabled, kel: true });
-                  setValues({
-                    ...values,
-                    kel: "",
-                    kec: e.target.value,
-                  });
-                  setId({
-                    ...id,
-                    kec: newValue ? newValue.props.id : null,
-                  });
-                }}
+                variant="outlined"
+                onChange={handleChangeTeks}
               >
                 {option.kecList.length === 0
                   ? option.kecList
@@ -340,24 +310,20 @@ export default function AddPegawai() {
                     ))}
               </TextField>
             </Grid>
-            <Grid item>
+            <Grid item xs={4}>
               <TextField
                 id="kel-input"
                 required
                 disabled={isDisabled.kel}
                 select
+                fullWidth
                 label="Kelurahan"
                 defaultValue=""
                 name="kel"
                 value={values.kel || ""}
                 helperText="Please select your kelurahan"
-                variant="standard"
-                onChange={(e) => {
-                  setValues({
-                    ...values,
-                    kel: e.target.value,
-                  });
-                }}
+                variant="outlined"
+                onChange={handleChangeTeks}
               >
                 {option.kelList.length === 0
                   ? option.kelList
@@ -369,7 +335,12 @@ export default function AddPegawai() {
               </TextField>
             </Grid>
           </Grid>
-          <Button color="primary" variant="outlined" type="submit">
+          <Button
+            color="primary"
+            variant="outlined"
+            type="submit"
+            disabled={!areAllFilled}
+          >
             Submit
           </Button>
         </form>
