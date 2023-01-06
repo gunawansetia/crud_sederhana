@@ -5,6 +5,7 @@ import AddPegawai from "parts/AddPegawai";
 import { Container } from "@mui/system";
 import { Breadcrumbs } from "@mui/material";
 import "./App.css";
+import EditPegawai from "parts/EditPegawai";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Routes>
         <Route path="/" index element={<PegawaiTable />} />
         <Route path="/add" element={<AddPegawai />} />
+        <Route path="/edit" element={<EditPegawai />} />
       </Routes>
     </BrowserRouter>
   );

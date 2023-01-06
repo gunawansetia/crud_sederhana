@@ -1,11 +1,16 @@
 let initialState = {
   rows: [],
+  userDetail: {},
   error: null,
   loading: true,
   provinsiList: [],
   kabList: [],
   kecList: [],
   kelList: [],
+  resPutData: [],
+  openAlert: false,
+  successAlert: true,
+  errorResPutData: [],
 };
 
 const items = (state = initialState, action) => {
@@ -25,6 +30,20 @@ const items = (state = initialState, action) => {
       return {
         ...state,
         rows: [action.payload.users, ...state.rows],
+      };
+    case "PUT_DATA":
+      return {
+        ...state,
+        resPutData: action.data,
+        openAlert: true,
+        successAlert: action.data.status === 200 ? true : false,
+      };
+    case "ERROR_PUT_DATA":
+      return {
+        ...state,
+        openAlert: true,
+        successAlert: false,
+        errorResPutData: action.data,
       };
     case "INIT_DATA_PROVINSI":
       return {
@@ -53,6 +72,14 @@ const items = (state = initialState, action) => {
         ...state,
         kelList: action.payload.dataKel,
       };
+    case "GET_DETAIL":
+      return {
+        ...state,
+        kabList: [],
+        kelList: [],
+        kecList: [],
+        userDetail: action.payload.users,
+      };
     case "DELETE_DATA_KABUPATEN":
       return {
         ...state,
@@ -68,6 +95,11 @@ const items = (state = initialState, action) => {
       return {
         ...state,
         kelList: [],
+      };
+    case "CLOSE":
+      return {
+        ...state,
+        openAlert: false,
       };
 
     default:

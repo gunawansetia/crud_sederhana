@@ -6,7 +6,6 @@ const endPointProv = "http://dev.farizdotid.com/api/daerahindonesia/provinsi";
 export const fetchPegawaiTable = () => {
   return (dispatch) => {
     dispatch(initDataStarted());
-
     axios
       .get(endPoint)
       .then((res) => {
@@ -85,11 +84,46 @@ export const fetchKelurahanList = (idKec) => {
   };
 };
 
-export const addSiswa = (data) => ({
+export const putDataPegawai = (id, data) => {
+  return (dispatch) => {
+    axios
+      .put(`https://dummyjson.com/users/${id}`, {
+        data,
+      })
+      .then((res) => ({ status: res.status, body: res.data }))
+      .then((obj) => {
+        dispatch(updatePegawai(obj));
+        console.log(obj);
+      })
+      .catch((err) => {
+        dispatch(errorUpdatePegawai(err));
+        console.log(err);
+      });
+  };
+};
+
+export const getDetail = (data) => ({
+  type: "GET_DETAIL",
+  payload: {
+    users: data,
+  },
+});
+
+export const addPegawai = (data) => ({
   type: "ADD_DATA",
   payload: {
     users: data,
   },
+});
+
+export const updatePegawai = (data) => ({
+  type: "PUT_DATA",
+  data,
+});
+
+export const errorUpdatePegawai = (data) => ({
+  type: "ERROR_PUT_DATA",
+  data,
 });
 
 export const deleteListKab = () => ({
@@ -136,4 +170,8 @@ const initDataKelurahan = (data) => ({
   payload: {
     dataKel: data,
   },
+});
+
+export const closeAlert = () => ({
+  type: "CLOSE",
 });

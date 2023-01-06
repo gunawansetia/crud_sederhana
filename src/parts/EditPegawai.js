@@ -10,6 +10,7 @@ import {
 import { Container } from "@mui/system";
 import {
   addPegawai,
+  closeAlert,
   deleteListKab,
   deleteListKec,
   deleteListKel,
@@ -17,26 +18,39 @@ import {
   fetchKecamatanList,
   fetchKelurahanList,
   fetchProvinsiList,
+  putDataPegawai,
 } from "actions";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 
-function AddPegawai(props) {
-  const { dispatch, provList, kabList, kecList, kelList } = props;
+function EditPegawai(props) {
+  const {
+    dispatch,
+    rows,
+    provList,
+    kabList,
+    kecList,
+    kelList,
+    resPutData,
+    errorResPutData,
+    successAlert,
+    openAlert,
+  } = props;
 
   const defaultValues = {
-    name: "",
-    province: "",
-    kab: "",
-    kec: "",
-    kel: "",
+    name: rows.nama || "",
+    province: rows.provinsi || "",
+    kab: rows.kabupaten || "",
+    kec: rows.kecamatan || "",
+    kel: rows.kelurahan || "",
   };
 
   const defaultId = {
     province: "",
     kab: "",
     kec: "",
+    kel: "",
   };
 
   const initDisabled = {
@@ -56,6 +70,65 @@ function AddPegawai(props) {
   const [id, setId] = useState(defaultId);
   const [open, setOpen] = useState(alertStatus);
 
+  useEffect(() => {
+    if (
+      id.province === "" &&
+      provList.length > 0 &&
+      values.province === rows.provinsi
+    ) {
+      let initIdProv = provList.find(
+        (item) => item.nama === defaultValues.province
+      );
+      setId({ ...id, province: initIdProv ? initIdProv.id : "" });
+    }
+    if (id.kab === "" && kabList.length > 0 && values.kab === rows.kabupaten) {
+      let initIdKab = kabList.find((item) => item.nama === defaultValues.kab);
+      console.log("UseEffect 2");
+      setId({ ...id, kab: initIdKab ? initIdKab.id : "" });
+    }
+    if (id.kec === "" && kecList.length > 0 && values.kec === rows.kecamatan) {
+      let initIdKec = kecList.find((item) => item.nama === defaultValues.kec);
+      console.log("UseEffect 2");
+      setId({ ...id, kec: initIdKec ? initIdKec.id : "" });
+    }
+  }, [kabList, kecList]);
+
+  useEffect(() => {
+    if (provList.length === 0) {
+      dispatch(fetchProvinsiList());
+    }
+    if (
+      id.province !== "" &&
+      values.province !== null &&
+      kabList.length === 0
+    ) {
+      console.log("UseEffect 1");
+      dispatch(fetchKabupatenList(id.province));
+      setIsDisabled({
+        ...isDisabled,
+        kab: false,
+      });
+    }
+
+    if (id.kab !== "" && values.kab !== null && kecList.length === 0) {
+      dispatch(fetchKecamatanList(id.kab));
+      setIsDisabled({
+        ...isDisabled,
+        kec: false,
+      });
+    }
+
+    if (id.kec !== "" && values.kec !== null && kelList.length === 0) {
+      dispatch(fetchKelurahanList(id.kec));
+      setIsDisabled({
+        ...isDisabled,
+        kel: false,
+      });
+    }
+
+    // eslint-disable-next-line
+  }, [id.province, id.kab, id.kec]);
+
   const areAllFilled =
     values.name !== "" &&
     !/^\s+$/.test(values.name) &&
@@ -66,6 +139,7 @@ function AddPegawai(props) {
 
   const handleChangeTeks = (e, newValue) => {
     const { name, value } = e.target;
+    console.log(newValue);
     if (name === "name")
       setValues({
         ...values,
@@ -94,7 +168,7 @@ function AddPegawai(props) {
   };
 
   const hChangeAutoComplete = (e, value) => {
-    console.log(value);
+    console.log(isDisabled.kab);
     setIsDisabled({
       ...isDisabled,
       kab: true,
@@ -119,73 +193,23 @@ function AddPegawai(props) {
     dispatch(deleteListKab(), deleteListKec(), deleteListKel());
   };
 
-  useEffect(() => {
-    if (provList.length === 0) {
-      dispatch(fetchProvinsiList());
-    }
-
-    if (
-      id.province !== "" &&
-      values.province !== null &&
-      values.kab === "" &&
-      kabList.length === 0
-    ) {
-      dispatch(fetchKabupatenList(id.province));
-      setIsDisabled({
-        ...isDisabled,
-        kab: false,
-      });
-    }
-
-    if (
-      id.kab !== "" &&
-      values.kab !== null &&
-      values.kec === "" &&
-      kecList.length === 0
-    ) {
-      dispatch(fetchKecamatanList(id.kab));
-      setIsDisabled({
-        ...isDisabled,
-        kec: false,
-      });
-    }
-
-    if (
-      id.kec !== "" &&
-      values.kec !== null &&
-      values.kel === "" &&
-      kelList.length === 0
-    ) {
-      dispatch(fetchKelurahanList(id.kec));
-      setIsDisabled({
-        ...isDisabled,
-        kel: false,
-      });
-    }
-
-    // eslint-disable-next-line
-  }, [id.province, id.kab, id.kec]);
-
   const handleSubmit = (event) => {
     event.preventDefault();
-    axios
-      .post("https://dummyjson.com/users/add", {
+    dispatch(
+      putDataPegawai(rows.id, {
         nama: values.name,
         provinsi: values.province,
         kabupaten: values.kab,
         kecamatan: values.kec,
         kelurahan: values.kel,
       })
-      .then((res) => ({ status: res.status, body: res.data }))
-      .then((obj) => {
-        dispatch(addPegawai(obj.body));
-        setOpen({ isOpen: true, text: obj.status, success: true });
-        console.log(obj.body);
-      })
-      .catch((err) => {
-        setOpen({ isOpen: true, text: err, success: false });
-        console.log(err);
-      });
+    );
+    // if (resPutData.status === 200) {
+    //   setOpen({ isOpen: true, text: resPutData.status, success: true });
+    //   console.log(resPutData.body);
+    // } else {
+    //   setOpen({ isOpen: true, text: errorResPutData, success: false });
+    // }
   };
 
   return (
@@ -196,14 +220,15 @@ function AddPegawai(props) {
           fontWeight={500}
           sx={{ textAlign: "center", my: 3 }}
         >
-          Tambah Pegawai
+          Edit Pegawai
         </Typography>
         <Alert
-          severity={!open.success ? "error" : "success"}
-          sx={{ display: open.isOpen ? "flex" : "none", mb: 3 }}
+          onClose={() => dispatch(closeAlert())}
+          severity={!successAlert ? "error" : "success"}
+          sx={{ display: openAlert ? "flex" : "none", mb: 3 }}
         >
-          {`This is a ${!open.success ? "error" : "success"} alert - ${
-            open.text
+          {`This is a ${!successAlert ? "error" : "success"} alert - ${
+            !successAlert ? errorResPutData : resPutData.status
           }`}
         </Alert>
 
@@ -224,15 +249,22 @@ function AddPegawai(props) {
             <Grid item xs={4}>
               <Autocomplete
                 id="province-input"
+                freeSolo
+                autoSelect
                 required
-                data-set
                 renderInput={(params) => (
                   <TextField {...params} name="province" label="Provinsi" />
                 )}
                 label="Provinsi"
+                value={provList.length > 0 ? values.province : ""}
                 onChange={hChangeAutoComplete}
                 options={provList}
-                getOptionLabel={(option) => option.nama || ""}
+                isOptionEqualToValue={(option, value) =>
+                  option.nama === values.province
+                }
+                getOptionLabel={(option) =>
+                  option.nama || values.province || ""
+                }
               />
             </Grid>
             <Grid item xs={4}>
@@ -243,9 +275,8 @@ function AddPegawai(props) {
                 disabled={isDisabled.kab}
                 select
                 label="Kabupaten"
-                defaultValue=""
                 name="kab"
-                value={values.kab || ""}
+                value={kabList.length > 0 ? values.kab : ""}
                 helperText="Please select your kabupaten"
                 variant="outlined"
                 onChange={handleChangeTeks}
@@ -267,9 +298,8 @@ function AddPegawai(props) {
                 select
                 fullWidth
                 label="Kecamatan"
-                defaultValue=""
                 name="kec"
-                value={values.kec || ""}
+                value={kecList.length > 0 ? values.kec : ""}
                 helperText="Please select your kecamatan"
                 variant="outlined"
                 onChange={handleChangeTeks}
@@ -291,9 +321,8 @@ function AddPegawai(props) {
                 select
                 fullWidth
                 label="Kelurahan"
-                defaultValue=""
                 name="kel"
-                value={values.kel || ""}
+                value={kelList.length > 0 ? values.kel : ""}
                 helperText="Please select your kelurahan"
                 variant="outlined"
                 onChange={handleChangeTeks}
@@ -324,11 +353,16 @@ function AddPegawai(props) {
 
 const mapStateToProps = (state) => {
   return {
+    rows: state.userDetail,
     provList: state.provinsiList,
     kabList: state.kabList,
     kecList: state.kecList,
     kelList: state.kelList,
+    resPutData: state.resPutData,
+    errorResPutData: state.errorResPutData,
+    openAlert: state.openAlert,
+    successAlert: state.successAlert,
   };
 };
 
-export default connect(mapStateToProps)(AddPegawai);
+export default connect(mapStateToProps)(EditPegawai);
