@@ -3,7 +3,11 @@
   text-decoration: none;
 }
 
-.Link:hover {
+.Link.Active {
   color: rgb(77, 77, 77);
+}
+
+.Link:hover {
+  color: rgb(34, 34, 34);
   text-decoration: underline;
 }

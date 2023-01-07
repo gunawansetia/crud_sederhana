@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import { Container } from "@mui/system";
 import {
-  addPegawai,
   closeAlert,
   deleteListKab,
   deleteListKec,
@@ -20,7 +19,6 @@ import {
   fetchProvinsiList,
   putDataPegawai,
 } from "actions";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 
@@ -68,7 +66,6 @@ function EditPegawai(props) {
   const [isDisabled, setIsDisabled] = useState(initDisabled);
   const [values, setValues] = useState(defaultValues);
   const [id, setId] = useState(defaultId);
-  const [open, setOpen] = useState(alertStatus);
 
   useEffect(() => {
     if (
@@ -204,12 +201,6 @@ function EditPegawai(props) {
         kelurahan: values.kel,
       })
     );
-    // if (resPutData.status === 200) {
-    //   setOpen({ isOpen: true, text: resPutData.status, success: true });
-    //   console.log(resPutData.body);
-    // } else {
-    //   setOpen({ isOpen: true, text: errorResPutData, success: false });
-    // }
   };
 
   return (

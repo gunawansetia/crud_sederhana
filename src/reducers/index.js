@@ -7,10 +7,14 @@ let initialState = {
   kabList: [],
   kecList: [],
   kelList: [],
+  resPostData: [],
   resPutData: [],
+  resDeleteData: [],
   openAlert: false,
   successAlert: true,
+  errorResPostData: [],
   errorResPutData: [],
+  errorResDeleteData: [],
 };
 
 const items = (state = initialState, action) => {
@@ -29,11 +33,24 @@ const items = (state = initialState, action) => {
     case "ADD_DATA":
       return {
         ...state,
-        rows: [action.payload.users, ...state.rows],
+        resPostData: action.data,
+        openAlert: true,
+        successAlert:
+          action.data.status >= 200 && action.data.status <= 299 ? true : false,
+        errorResPostData: [],
+      };
+    case "ERROR_ADD_DATA":
+      return {
+        ...state,
+        openAlert: true,
+        resPostData: [],
+        successAlert: false,
+        errorResPostData: action.err,
       };
     case "PUT_DATA":
       return {
         ...state,
+        errorResPutData: [],
         resPutData: action.data,
         openAlert: true,
         successAlert: action.data.status === 200 ? true : false,
@@ -43,7 +60,21 @@ const items = (state = initialState, action) => {
         ...state,
         openAlert: true,
         successAlert: false,
+        resPutData: [],
         errorResPutData: action.data,
+      };
+    case "DELETE_DATA":
+      return {
+        ...state,
+        resDeleteData: action.data,
+        errorResDeleteData: [],
+        openAlert: true,
+      };
+    case "ERROR_DELETE_DATA":
+      return {
+        ...state,
+        resDeleteData: [],
+        errorResDeleteData: action.err,
       };
     case "INIT_DATA_PROVINSI":
       return {

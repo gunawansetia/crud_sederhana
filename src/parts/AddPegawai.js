@@ -2,6 +2,7 @@ import {
   Alert,
   Autocomplete,
   Button,
+  Collapse,
   Grid,
   MenuItem,
   TextField,
@@ -9,7 +10,7 @@ import {
 } from "@mui/material";
 import { Container } from "@mui/system";
 import {
-  addPegawai,
+  closeAlert,
   deleteListKab,
   deleteListKec,
   deleteListKel,
@@ -17,13 +18,24 @@ import {
   fetchKecamatanList,
   fetchKelurahanList,
   fetchProvinsiList,
+  postDataPegawai,
 } from "actions";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import BreadCrumbs from "component/BreadCrumbs";
 
 function AddPegawai(props) {
-  const { dispatch, provList, kabList, kecList, kelList } = props;
+  const {
+    dispatch,
+    provList,
+    kabList,
+    kecList,
+    kelList,
+    successAlert,
+    openAlert,
+    resPostData,
+    errorResPostData,
+  } = props;
 
   const defaultValues = {
     name: "",
@@ -168,28 +180,24 @@ function AddPegawai(props) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    axios
-      .post("https://dummyjson.com/users/add", {
+    dispatch(
+      postDataPegawai({
         nama: values.name,
         provinsi: values.province,
         kabupaten: values.kab,
         kecamatan: values.kec,
         kelurahan: values.kel,
       })
-      .then((res) => ({ status: res.status, body: res.data }))
-      .then((obj) => {
-        dispatch(addPegawai(obj.body));
-        setOpen({ isOpen: true, text: obj.status, success: true });
-        console.log(obj.body);
-      })
-      .catch((err) => {
-        setOpen({ isOpen: true, text: err, success: false });
-        console.log(err);
-      });
+    );
+  };
+
+  const handleClose = () => {
+    dispatch(closeAlert());
   };
 
   return (
     <>
+      <BreadCrumbs addActive={"Active"} />
       <Container maxWidth="lg">
         <Typography
           variant="h5"
@@ -199,11 +207,12 @@ function AddPegawai(props) {
           Tambah Pegawai
         </Typography>
         <Alert
-          severity={!open.success ? "error" : "success"}
-          sx={{ display: open.isOpen ? "flex" : "none", mb: 3 }}
+          onClose={handleClose}
+          severity={!successAlert ? "error" : "success"}
+          sx={{ display: openAlert ? "flex" : "none", mb: 3 }}
         >
-          {`This is a ${!open.success ? "error" : "success"} alert - ${
-            open.text
+          {`This is a ${!successAlert ? "error" : "success"} alert - ${
+            !successAlert ? errorResPostData : resPostData.status
           }`}
         </Alert>
 
@@ -328,6 +337,10 @@ const mapStateToProps = (state) => {
     kabList: state.kabList,
     kecList: state.kecList,
     kelList: state.kelList,
+    resPostData: state.resPostData,
+    errorResPostData: state.errorResPostData,
+    openAlert: state.openAlert,
+    successAlert: state.successAlert,
   };
 };
 

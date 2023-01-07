@@ -11,6 +11,7 @@ export const fetchPegawaiTable = () => {
       .then((res) => {
         let result = res.data;
         dispatch(initData(result));
+        console.log(result);
       })
       .catch((err) => {
         console.log(err);
@@ -84,6 +85,24 @@ export const fetchKelurahanList = (idKec) => {
   };
 };
 
+export const postDataPegawai = (data) => {
+  return (dispatch) => {
+    axios
+      .post("https://dummyjson.com/users/add", {
+        data,
+      })
+      .then((res) => ({ status: res.status, body: res.data }))
+      .then((obj) => {
+        dispatch(addPegawai(obj));
+        console.log(obj);
+      })
+      .catch((err) => {
+        dispatch(errorAddPegawai(err));
+        console.log(err);
+      });
+  };
+};
+
 export const putDataPegawai = (id, data) => {
   return (dispatch) => {
     axios
@@ -102,6 +121,22 @@ export const putDataPegawai = (id, data) => {
   };
 };
 
+export const deleteDataPegawai = (id) => {
+  return (dispatch) => {
+    axios
+      .delete(`https://dummyjson.com/users/${id}`)
+      .then((res) => ({ status: res.status, body: res.data }))
+      .then((obj) => {
+        dispatch(deletePegawai(obj));
+        console.log(obj);
+      })
+      .catch((err) => {
+        dispatch(errorDeletePegawai(err));
+        console.log(err);
+      });
+  };
+};
+
 export const getDetail = (data) => ({
   type: "GET_DETAIL",
   payload: {
@@ -109,21 +144,35 @@ export const getDetail = (data) => ({
   },
 });
 
-export const addPegawai = (data) => ({
+const addPegawai = (data) => ({
   type: "ADD_DATA",
-  payload: {
-    users: data,
-  },
+
+  data,
 });
 
-export const updatePegawai = (data) => ({
+const errorAddPegawai = (err) => ({
+  type: "ERROR_ADD_DATA",
+  err,
+});
+
+const updatePegawai = (data) => ({
   type: "PUT_DATA",
   data,
 });
 
-export const errorUpdatePegawai = (data) => ({
+const errorUpdatePegawai = (data) => ({
   type: "ERROR_PUT_DATA",
   data,
+});
+
+const deletePegawai = (data) => ({
+  type: "DELETE_DATA",
+  data,
+});
+
+const errorDeletePegawai = (err) => ({
+  type: "ERROR_DELETE_DATA",
+  err,
 });
 
 export const deleteListKab = () => ({
