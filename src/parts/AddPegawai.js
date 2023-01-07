@@ -2,7 +2,6 @@ import {
   Alert,
   Autocomplete,
   Button,
-  Collapse,
   Grid,
   MenuItem,
   TextField,
@@ -18,6 +17,7 @@ import {
   fetchKecamatanList,
   fetchKelurahanList,
   fetchProvinsiList,
+  initDataStarted,
   postDataPegawai,
 } from "actions";
 import React, { useEffect, useState } from "react";
@@ -43,6 +43,7 @@ function AddPegawai(props) {
     kab: "",
     kec: "",
     kel: "",
+    jalan: "",
   };
 
   const defaultId = {
@@ -66,7 +67,6 @@ function AddPegawai(props) {
   const [isDisabled, setIsDisabled] = useState(initDisabled);
   const [values, setValues] = useState(defaultValues);
   const [id, setId] = useState(defaultId);
-  const [open, setOpen] = useState(alertStatus);
 
   const areAllFilled =
     values.name !== "" &&
@@ -74,7 +74,9 @@ function AddPegawai(props) {
     values.province !== "" &&
     values.kab !== "" &&
     values.kec !== "" &&
-    values.kel !== "";
+    values.kel !== "" &&
+    values.jalan !== "" &&
+    !/^\s+$/.test(values.jalan);
 
   const handleChangeTeks = (e, newValue) => {
     const { name, value } = e.target;
@@ -102,6 +104,12 @@ function AddPegawai(props) {
     }
     if (name === "kel") {
       setValues({ ...values, kel: value });
+    }
+    if (name === "jalan") {
+      setValues({
+        ...values,
+        [name]: value,
+      });
     }
   };
 
@@ -132,6 +140,7 @@ function AddPegawai(props) {
   };
 
   useEffect(() => {
+    dispatch(initDataStarted());
     if (provList.length === 0) {
       dispatch(fetchProvinsiList());
     }
@@ -187,6 +196,7 @@ function AddPegawai(props) {
         kabupaten: values.kab,
         kecamatan: values.kec,
         kelurahan: values.kel,
+        jalan: values.jalan,
       })
     );
   };
@@ -217,7 +227,12 @@ function AddPegawai(props) {
         </Alert>
 
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid
+            container
+            spacing={2}
+            sx={{ mb: 3 }}
+            columns={{ xs: 4, sm: 12 }}
+          >
             <Grid item xs={4}>
               <TextField
                 id="name-input"
@@ -315,6 +330,18 @@ function AddPegawai(props) {
                       </MenuItem>
                     ))}
               </TextField>
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                id="jalan-input"
+                required
+                label="Jalan"
+                fullWidth
+                name="jalan"
+                variant="standard"
+                value={values.jalan || ""}
+                onChange={handleChangeTeks}
+              />
             </Grid>
           </Grid>
           <Button

@@ -12,6 +12,7 @@ let initialState = {
   resDeleteData: [],
   openAlert: false,
   successAlert: true,
+  openDeleteAlert: false,
   errorResPostData: [],
   errorResPutData: [],
   errorResDeleteData: [],
@@ -22,6 +23,7 @@ const items = (state = initialState, action) => {
     case "INIT_DATA_STARTED":
       return {
         ...state,
+        openAlert: false,
         loading: true,
       };
     case "INIT_DATA":
@@ -30,10 +32,17 @@ const items = (state = initialState, action) => {
         loading: false,
         rows: action.rows,
       };
+    case "INIT_DATA_FAILED":
+      return {
+        ...state,
+        loading: false,
+        error: true,
+      };
     case "ADD_DATA":
       return {
         ...state,
         resPostData: action.data,
+        rows: [],
         openAlert: true,
         successAlert:
           action.data.status >= 200 && action.data.status <= 299 ? true : false,
@@ -50,6 +59,7 @@ const items = (state = initialState, action) => {
     case "PUT_DATA":
       return {
         ...state,
+        rows: [],
         errorResPutData: [],
         resPutData: action.data,
         openAlert: true,
@@ -68,11 +78,12 @@ const items = (state = initialState, action) => {
         ...state,
         resDeleteData: action.data,
         errorResDeleteData: [],
-        openAlert: true,
+        openDeleteAlert: true,
       };
     case "ERROR_DELETE_DATA":
       return {
         ...state,
+        openAlert: true,
         resDeleteData: [],
         errorResDeleteData: action.err,
       };
@@ -131,6 +142,12 @@ const items = (state = initialState, action) => {
       return {
         ...state,
         openAlert: false,
+      };
+    case "CLOSE_DELETE_ALERT":
+      return {
+        ...state,
+        openDeleteAlert: false,
+        rows: [],
       };
 
     default:

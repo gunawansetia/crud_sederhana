@@ -17,8 +17,10 @@ import {
   fetchKecamatanList,
   fetchKelurahanList,
   fetchProvinsiList,
+  initDataStarted,
   putDataPegawai,
 } from "actions";
+import BreadCrumbs from "component/BreadCrumbs";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 
@@ -42,6 +44,7 @@ function EditPegawai(props) {
     kab: rows.kabupaten || "",
     kec: rows.kecamatan || "",
     kel: rows.kelurahan || "",
+    jalan: rows.jalan || "",
   };
 
   const defaultId = {
@@ -68,6 +71,7 @@ function EditPegawai(props) {
   const [id, setId] = useState(defaultId);
 
   useEffect(() => {
+    dispatch(initDataStarted());
     if (
       id.province === "" &&
       provList.length > 0 &&
@@ -132,16 +136,19 @@ function EditPegawai(props) {
     values.province !== "" &&
     values.kab !== "" &&
     values.kec !== "" &&
-    values.kel !== "";
+    values.kel !== "" &&
+    values.jalan !== "" &&
+    !/^\s+$/.test(values.jalan);
 
   const handleChangeTeks = (e, newValue) => {
     const { name, value } = e.target;
     console.log(newValue);
-    if (name === "name")
+    if (name === "name") {
       setValues({
         ...values,
         [name]: value,
       });
+    }
     if (name === "kab") {
       dispatch(deleteListKec(), deleteListKel());
       setValues({
@@ -161,6 +168,12 @@ function EditPegawai(props) {
     }
     if (name === "kel") {
       setValues({ ...values, kel: value });
+    }
+    if (name === "jalan") {
+      setValues({
+        ...values,
+        [name]: value,
+      });
     }
   };
 
@@ -199,12 +212,15 @@ function EditPegawai(props) {
         kabupaten: values.kab,
         kecamatan: values.kec,
         kelurahan: values.kel,
+        jalan: values.jalan,
       })
     );
   };
 
   return (
     <>
+      <BreadCrumbs />
+
       <Container maxWidth="lg">
         <Typography
           variant="h5"
@@ -224,7 +240,12 @@ function EditPegawai(props) {
         </Alert>
 
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid
+            container
+            spacing={2}
+            sx={{ mb: 3 }}
+            columns={{ xs: 4, sm: 12 }}
+          >
             <Grid item xs={4}>
               <TextField
                 id="name-input"
@@ -326,6 +347,18 @@ function EditPegawai(props) {
                       </MenuItem>
                     ))}
               </TextField>
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                id="jalan-input"
+                required
+                label="Jalan"
+                fullWidth
+                name="jalan"
+                variant="standard"
+                value={values.jalan || ""}
+                onChange={handleChangeTeks}
+              />
             </Grid>
           </Grid>
           <Button

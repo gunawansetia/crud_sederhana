@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
-import { closeAlert, deleteDataPegawai } from "actions";
+import { closeDeleteAlert, deleteDataPegawai } from "actions";
 import React from "react";
 import { connect } from "react-redux";
 
@@ -11,7 +11,7 @@ function DeletePegawai(props) {
     dispatch,
     resDeleteData,
     errorResDeleteData,
-    openAlert,
+    openDeleteAlert,
   } = props;
 
   const handleDelete = () => {
@@ -20,7 +20,7 @@ function DeletePegawai(props) {
   };
 
   const handleClose = () => {
-    dispatch(closeAlert());
+    dispatch(closeDeleteAlert());
   };
 
   const handleCloseConfirm = () => {
@@ -46,7 +46,7 @@ function DeletePegawai(props) {
         </DialogActions>
       </Dialog>
       <Dialog
-        open={openAlert}
+        open={openDeleteAlert}
         aria-labelledby="alert-dialog-delete"
         aria-describedby="alert-dialog-delete"
       >
@@ -67,7 +67,7 @@ function mapStateToProps(state) {
   return {
     resDeleteData: state.resDeleteData,
     errorResDeleteData: state.errorResDeleteData,
-    openAlert: state.openAlert,
+    openDeleteAlert: state.openDeleteAlert,
   };
 }
 

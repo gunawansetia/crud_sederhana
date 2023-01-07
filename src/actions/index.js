@@ -14,6 +14,7 @@ export const fetchPegawaiTable = () => {
         console.log(result);
       })
       .catch((err) => {
+        dispatch(initDataFailed());
         console.log(err);
       });
   };
@@ -88,9 +89,7 @@ export const fetchKelurahanList = (idKec) => {
 export const postDataPegawai = (data) => {
   return (dispatch) => {
     axios
-      .post("https://dummyjson.com/users/add", {
-        data,
-      })
+      .post("https://61601920faa03600179fb8d2.mockapi.io/pegawai", data)
       .then((res) => ({ status: res.status, body: res.data }))
       .then((obj) => {
         dispatch(addPegawai(obj));
@@ -106,9 +105,7 @@ export const postDataPegawai = (data) => {
 export const putDataPegawai = (id, data) => {
   return (dispatch) => {
     axios
-      .put(`https://dummyjson.com/users/${id}`, {
-        data,
-      })
+      .put(`https://61601920faa03600179fb8d2.mockapi.io/pegawai/${id}`, data)
       .then((res) => ({ status: res.status, body: res.data }))
       .then((obj) => {
         dispatch(updatePegawai(obj));
@@ -124,7 +121,7 @@ export const putDataPegawai = (id, data) => {
 export const deleteDataPegawai = (id) => {
   return (dispatch) => {
     axios
-      .delete(`https://dummyjson.com/users/${id}`)
+      .delete(`https://61601920faa03600179fb8d2.mockapi.io/pegawai/${id}`)
       .then((res) => ({ status: res.status, body: res.data }))
       .then((obj) => {
         dispatch(deletePegawai(obj));
@@ -146,7 +143,6 @@ export const getDetail = (data) => ({
 
 const addPegawai = (data) => ({
   type: "ADD_DATA",
-
   data,
 });
 
@@ -185,13 +181,17 @@ export const deleteListKel = () => ({
   type: "DELETE_DATA_KELURAHAN",
 });
 
-const initDataStarted = () => ({
+export const initDataStarted = () => ({
   type: "INIT_DATA_STARTED",
 });
 
 const initData = (rows) => ({
   type: "INIT_DATA",
   rows,
+});
+
+const initDataFailed = () => ({
+  type: "INIT_DATA_FAILED",
 });
 
 const initDataProvinsi = (data) => ({
@@ -223,4 +223,8 @@ const initDataKelurahan = (data) => ({
 
 export const closeAlert = () => ({
   type: "CLOSE",
+});
+
+export const closeDeleteAlert = () => ({
+  type: "CLOSE_DELETE_ALERT",
 });

@@ -21,7 +21,7 @@ import DeletePegawai from "./DeletePegawai";
 import BreadCrumbs from "component/BreadCrumbs";
 
 function PegawaiTable(props) {
-  const { rows, loading, dispatch } = props;
+  const { rows, loading, dispatch, error } = props;
   const [id, setId] = useState("");
   const [openConfirm, setOpenConfirm] = useState(false);
   const [page, setPage] = useState(0);
@@ -38,14 +38,23 @@ function PegawaiTable(props) {
 
   useEffect(() => {
     if (rows ? rows.length === 0 : true) {
+      setPage(0);
       dispatch(fetchPegawaiTable());
     } // eslint-disable-next-line
   }, [rows]);
 
-  if (loading || rows.length === 0) {
+  if (loading && rows.length === 0) {
     return (
       <Typography variant="h5" sx={{ textAlign: "center", my: 3 }}>
         Loading...
+      </Typography>
+    );
+  }
+
+  if (error) {
+    return (
+      <Typography variant="h5" sx={{ textAlign: "center", my: 3 }}>
+        Something's wrong...
       </Typography>
     );
   }
@@ -84,6 +93,7 @@ function PegawaiTable(props) {
                 <TableCell>Kabupaten</TableCell>
                 <TableCell>Kecamatan</TableCell>
                 <TableCell>Kelurahan</TableCell>
+                <TableCell>Jalan</TableCell>
                 <TableCell sx={{ width: 200 }}>Action</TableCell>
               </TableRow>
             </TableHead>
@@ -101,6 +111,7 @@ function PegawaiTable(props) {
                     <TableCell>{row.kabupaten}</TableCell>
                     <TableCell>{row.kecamatan}</TableCell>
                     <TableCell>{row.kelurahan}</TableCell>
+                    <TableCell>{row.jalan ? row.jalan : ""}</TableCell>
                     <TableCell>
                       <Link to="edit">
                         <Button onClick={() => getIdUser(row)}>
@@ -127,7 +138,7 @@ function PegawaiTable(props) {
           component="div"
           count={rows.length}
           rowsPerPage={rowsPerPage}
-          page={page}
+          page={rows.length <= 0 ? 0 : page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
@@ -140,6 +151,7 @@ const mapStateToProps = (state) => {
   return {
     rows: state.rows,
     loading: state.loading,
+    error: state.error,
   };
 };
 
