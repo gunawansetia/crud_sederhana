@@ -22,7 +22,6 @@ import {
 } from "actions";
 import BreadCrumbs from "component/BreadCrumbs";
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
 
 function EditPegawai(props) {
   const {
@@ -60,12 +59,6 @@ function EditPegawai(props) {
     kel: true,
   };
 
-  const alertStatus = {
-    isOpen: false,
-    success: true,
-    text: "",
-  };
-
   const [isDisabled, setIsDisabled] = useState(initDisabled);
   const [values, setValues] = useState(defaultValues);
   const [id, setId] = useState(defaultId);
@@ -84,14 +77,15 @@ function EditPegawai(props) {
     }
     if (id.kab === "" && kabList.length > 0 && values.kab === rows.kabupaten) {
       let initIdKab = kabList.find((item) => item.nama === defaultValues.kab);
-      console.log("UseEffect 2");
+
       setId({ ...id, kab: initIdKab ? initIdKab.id : "" });
     }
     if (id.kec === "" && kecList.length > 0 && values.kec === rows.kecamatan) {
       let initIdKec = kecList.find((item) => item.nama === defaultValues.kec);
-      console.log("UseEffect 2");
+
       setId({ ...id, kec: initIdKec ? initIdKec.id : "" });
     }
+    // eslint-disable-next-line
   }, [kabList, kecList]);
 
   useEffect(() => {
@@ -103,7 +97,6 @@ function EditPegawai(props) {
       values.province !== null &&
       kabList.length === 0
     ) {
-      console.log("UseEffect 1");
       dispatch(fetchKabupatenList(id.province));
       setIsDisabled({
         ...isDisabled,
@@ -142,7 +135,7 @@ function EditPegawai(props) {
 
   const handleChangeTeks = (e, newValue) => {
     const { name, value } = e.target;
-    console.log(newValue);
+
     if (name === "name") {
       setValues({
         ...values,
@@ -178,7 +171,6 @@ function EditPegawai(props) {
   };
 
   const hChangeAutoComplete = (e, value) => {
-    console.log(isDisabled.kab);
     setIsDisabled({
       ...isDisabled,
       kab: true,
@@ -375,18 +367,4 @@ function EditPegawai(props) {
   );
 }
 
-const mapStateToProps = (state) => {
-  return {
-    rows: state.userDetail,
-    provList: state.provinsiList,
-    kabList: state.kabList,
-    kecList: state.kecList,
-    kelList: state.kelList,
-    resPutData: state.resPutData,
-    errorResPutData: state.errorResPutData,
-    openAlert: state.openAlert,
-    successAlert: state.successAlert,
-  };
-};
-
-export default connect(mapStateToProps)(EditPegawai);
+export default EditPegawai;

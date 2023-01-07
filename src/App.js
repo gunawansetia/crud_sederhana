@@ -1,11 +1,9 @@
-import PegawaiTable from "parts/PegawaiTable";
-import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import PegawaiTable from "containers/PegawaiTable";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Navbar from "component/Navbar";
-import AddPegawai from "parts/AddPegawai";
-import { Container } from "@mui/system";
-import { Breadcrumbs } from "@mui/material";
+import AddPegawai from "containers/AddPegawai";
 import "./App.css";
-import EditPegawai from "parts/EditPegawai";
+import EditPegawai from "containers/EditPegawai";
 
 function App() {
   return (

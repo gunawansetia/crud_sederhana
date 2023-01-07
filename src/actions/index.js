@@ -26,7 +26,7 @@ export const fetchProvinsiList = () => {
       .get(endPointProv)
       .then((res) => {
         let result = res.data;
-        console.log(result.provinsi);
+
         dispatch(initDataProvinsi(result.provinsi));
       })
       .catch((err) => {
@@ -43,7 +43,7 @@ export const fetchKabupatenList = (idProv) => {
       )
       .then((res) => {
         let result = res.data;
-        console.log(result);
+
         dispatch(initDataKabupaten(result.kota_kabupaten));
       })
       .catch((err) => {
@@ -60,7 +60,7 @@ export const fetchKecamatanList = (idKab) => {
       )
       .then((res) => {
         let result = res.data;
-        console.log(result);
+
         dispatch(initDataKecamatan(result.kecamatan));
       })
       .catch((err) => {
@@ -77,7 +77,7 @@ export const fetchKelurahanList = (idKec) => {
       )
       .then((res) => {
         let result = res.data;
-        console.log(result);
+
         dispatch(initDataKelurahan(result.kelurahan));
       })
       .catch((err) => {

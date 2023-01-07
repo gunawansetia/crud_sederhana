@@ -1,7 +1,6 @@
 import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
 import { closeDeleteAlert, deleteDataPegawai } from "actions";
 import React from "react";
-import { connect } from "react-redux";
 
 function DeletePegawai(props) {
   const {
@@ -63,12 +62,4 @@ function DeletePegawai(props) {
   );
 }
 
-function mapStateToProps(state) {
-  return {
-    resDeleteData: state.resDeleteData,
-    errorResDeleteData: state.errorResDeleteData,
-    openDeleteAlert: state.openDeleteAlert,
-  };
-}
-
-export default connect(mapStateToProps)(DeletePegawai);
+export default DeletePegawai;

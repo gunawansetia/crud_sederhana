@@ -21,7 +21,6 @@ import {
   postDataPegawai,
 } from "actions";
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
 import BreadCrumbs from "component/BreadCrumbs";
 
 function AddPegawai(props) {
@@ -56,12 +55,6 @@ function AddPegawai(props) {
     kab: true,
     kec: true,
     kel: true,
-  };
-
-  const alertStatus = {
-    isOpen: false,
-    success: true,
-    text: "",
   };
 
   const [isDisabled, setIsDisabled] = useState(initDisabled);
@@ -114,7 +107,6 @@ function AddPegawai(props) {
   };
 
   const hChangeAutoComplete = (e, value) => {
-    console.log(value);
     setIsDisabled({
       ...isDisabled,
       kab: true,
@@ -267,7 +259,6 @@ function AddPegawai(props) {
                 disabled={isDisabled.kab}
                 select
                 label="Kabupaten"
-                defaultValue=""
                 name="kab"
                 value={values.kab || ""}
                 helperText="Please select your kabupaten"
@@ -291,7 +282,6 @@ function AddPegawai(props) {
                 select
                 fullWidth
                 label="Kecamatan"
-                defaultValue=""
                 name="kec"
                 value={values.kec || ""}
                 helperText="Please select your kecamatan"
@@ -315,7 +305,6 @@ function AddPegawai(props) {
                 select
                 fullWidth
                 label="Kelurahan"
-                defaultValue=""
                 name="kel"
                 value={values.kel || ""}
                 helperText="Please select your kelurahan"
@@ -358,17 +347,4 @@ function AddPegawai(props) {
   );
 }
 
-const mapStateToProps = (state) => {
-  return {
-    provList: state.provinsiList,
-    kabList: state.kabList,
-    kecList: state.kecList,
-    kelList: state.kelList,
-    resPostData: state.resPostData,
-    errorResPostData: state.errorResPostData,
-    openAlert: state.openAlert,
-    successAlert: state.successAlert,
-  };
-};
-
-export default connect(mapStateToProps)(AddPegawai);
+export default AddPegawai;

@@ -13,11 +13,10 @@ import {
 import { Container } from "@mui/system";
 import { fetchPegawaiTable, getDetail } from "actions";
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { DeleteOutlined, EditOutlined } from "@mui/icons-material";
 import { pink } from "@mui/material/colors";
-import DeletePegawai from "./DeletePegawai";
+import DeletePegawai from "containers/DeletePegawai";
 import BreadCrumbs from "component/BreadCrumbs";
 
 function PegawaiTable(props) {
@@ -147,12 +146,4 @@ function PegawaiTable(props) {
   );
 }
 
-const mapStateToProps = (state) => {
-  return {
-    rows: state.rows,
-    loading: state.loading,
-    error: state.error,
-  };
-};
-
-export default connect(mapStateToProps)(PegawaiTable);
+export default PegawaiTable;
